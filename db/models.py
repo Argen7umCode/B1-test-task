@@ -40,6 +40,7 @@ class Turnover(Base):
 class Record(Base):
     __tablename__ = "record"
     record_id:        Mapped[int] = mapped_column(primary_key=True)
+    unid:             Mapped[int] = mapped_column(nullable=False)
     input_balance_id: Mapped[int] = mapped_column(ForeignKey('input_balance.input_balance_id'))
     turnover_id:      Mapped[int] = mapped_column(ForeignKey('turnover.class_id'))
     class_id:         Mapped[int] = mapped_column(ForeignKey('class.class_id'))

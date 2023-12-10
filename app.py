@@ -1,13 +1,18 @@
-from fastapi import FastAPI, UploadFile, File
+from parser_1 import Parser
+
+from fastapi import FastAPI, UploadFile
+import aiofiles
 
 app = FastAPI()
-
-
-@app.post("/file/upload-bytes")
-def upload_file_bytes(file_bytes: bytes = File()):
-    return {'file_bytes': str(file_bytes)}
+parser = Parser()
 
 
 @app.post("/file/upload-file")
-def upload_file(file: UploadFile):
-    return file
+async def upload_file(file: UploadFile):
+    file_path = f'files/{file.filename}'
+    async with aiofiles.open(file_path, 'wb') as saved_file:
+        content = await file.read()
+        await saved_file.write(content)
+
+    dfs = parser.get_classes_from_excel_file(file_path)
+    print(dfs[0])
