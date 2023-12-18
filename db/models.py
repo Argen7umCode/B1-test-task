@@ -6,17 +6,17 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import declarative_base
 
-from db import Base
-
 
 Base = declarative_base()
+
+
 
 class Class(Base):
     __tablename__ = "class"
     class_id: Mapped[int] = mapped_column(primary_key=True)
     description: Mapped[str] = mapped_column(nullable=False, unique=True)
 
-    records: Mapped[List['Record']] = relationship()
+    records: Mapped[List['Record']] = relationship('Records', back_populates='class', lazy="selectin")
 
 
 class InputBalance(Base):
@@ -25,7 +25,7 @@ class InputBalance(Base):
     active: Mapped[float] = mapped_column(nullable=False, unique=True)
     passive: Mapped[float] = mapped_column(nullable=False, unique=True)
     
-    records: Mapped[List['Record']] = relationship()
+    record: Mapped['Record'] = relationship('Records', back_populates='inputbalance', uselist=False, lazy="selectin")
 
 
 class Turnover(Base):
@@ -34,7 +34,7 @@ class Turnover(Base):
     debit: Mapped[float] = mapped_column(nullable=False, unique=True)
     credit: Mapped[float] = mapped_column(nullable=False, unique=True)
     
-    records: Mapped[List['Record']] = relationship()
+    record: Mapped['Record'] = relationship('Records', back_populates='turnover', uselist=False, lazy="selectin")
 
 
 class Record(Base):
@@ -42,5 +42,9 @@ class Record(Base):
     record_id:        Mapped[int] = mapped_column(primary_key=True)
     unid:             Mapped[int] = mapped_column(nullable=False)
     input_balance_id: Mapped[int] = mapped_column(ForeignKey('input_balance.input_balance_id'))
-    turnover_id:      Mapped[int] = mapped_column(ForeignKey('turnover.class_id'))
+    turnover_id:      Mapped[int] = mapped_column(ForeignKey('turnover.turnover_id'))
     class_id:         Mapped[int] = mapped_column(ForeignKey('class.class_id'))
+
+    input_balance:    Mapped[int] = relationship('InputBalanse', back_populates='record', lazy="selectin")
+    tunrover:         Mapped[int] = relationship('Turnover', back_populates='record', lazy="selectin")
+    class_:           Mapped[int] = relationship('Class', back_populates='record', lazy="selectin")
