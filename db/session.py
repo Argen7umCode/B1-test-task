@@ -11,7 +11,6 @@ engine = create_async_engine(DATABASE_URL, echo=True)
 async_session = sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 
-# Dependency
 def get_db():
     db = async_session()
     try:

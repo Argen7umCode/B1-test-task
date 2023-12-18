@@ -46,5 +46,5 @@ class Record(Base):
     class_id:         Mapped[int] = mapped_column(ForeignKey('class.class_id'))
 
     input_balance:    Mapped[int] = relationship('InputBalanse', back_populates='record', lazy="selectin")
-    tunrover:         Mapped[int] = relationship('Turnover', back_populates='record', lazy="selectin")
+    turnover:         Mapped[int] = relationship('Turnover', back_populates='record', lazy="selectin")
     class_:           Mapped[int] = relationship('Class', back_populates='record', lazy="selectin")
