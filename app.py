@@ -1,8 +1,8 @@
 import uvicorn
 from parser_1 import Parser
 from db.session import get_db
-from db.models import Base, PaymentClass, Record, Test
-from schemas.record import RecordSchema
+from db.models import Base, PaymentClass, Record
+
 from typing import Union, List
 
 import pandas as pd
@@ -29,39 +29,45 @@ class DAL:
         res = await self.db_session.execute(query)
         row = res.fetchone()
         if row is not None:
-            return row     
+            return row[0]  
     
     async def add_all(self, rows: List[Base]) -> List[Base]:
-        await self.db_session.add_all(rows)
+        self.db_session.add_all(rows)
         return rows
 
+    async def add_one(self, rows: List[Base]) -> List[Base]:
+        self.db_session.add(rows)
+        return rows
 
-async def process_class(payment_class: str, 
+async def process_class(payment_class_description: str, 
                         df: pd.DataFrame, 
                         session: AsyncSession):
-    # dal = DAL(session)
+    async with session.begin():
+        dal = DAL(session)
 
+        payment_class_select_query = select(PaymentClass)\
+                .where(PaymentClass.description == payment_class_description)
+        payment_class = await dal.make_query_and_get_one(payment_class_select_query)
+        
+        if payment_class is None:
+            payment_class = PaymentClass(description=payment_class_description)
+            await dal.add_one(payment_class)
 
-    # await dal.make_query_and_get_one(select(Test))
-    # print(session)
-    # print(payment_class)
-    # payment_class_select_query = select(PaymentClass).where(PaymentClass.description == payment_class)
-    # payment_class = await dal.make_query_and_get_one(payment_class_select_query)
-    # print(payment_class)
-        # to_add = []
-        # for row in df[['unid', 'active', 'passive', 'debit', 'credit']].to_numpy():
-        #     unid, active, passive, debit, credit = row
-        #     input_balance = InputBalance(active, 
-        #                                  passive) 
-        #     turnover = Turnover(debit, 
-        #                         credit)
-        #     record = Record(unid=unid, 
-        #                     input_balance=input_balance, 
-        #                     tunrover=turnover, 
-        #                     payment_class=payment_class)
-        #     to_add.extend([input_balance, turnover, record])
-        # await dal.add_all(to_add)
-        # return to_add[2::3]
+        to_add = []
+        for row in df[['unid', 'active', 'passive', 'debit', 'credit']].to_numpy():
+            unid, active, passive, debit, credit = row
+            record = Record(
+                        unid=int(unid), 
+                        active=active,
+                        passive=passive,
+                        debit=debit,
+                        credit=credit,
+                        payment_class=payment_class
+                    )
+            to_add.append(record)
+        
+        await dal.add_all(to_add)
+    return to_add
 
 
 @app.post("/file/upload-file")
@@ -72,17 +78,14 @@ async def upload_file(file: UploadFile, session: AsyncSession = Depends(get_db))
         await saved_file.write(content)
     
     classes = parser.get_classes_from_excel_file(file_path)
-
-    try:
-        pass      
-    except Exception as e:
-        print(e)
-        return None
     
+    added = []
     for payment_class, df in classes.items():
-        print(await process_class(payment_class, df, session))
-        break
-
+        print(payment_class)
+        result = await process_class(payment_class, df, session)
+        added.extend(result)
+    
+    return added
     
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
