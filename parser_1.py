@@ -5,8 +5,6 @@ import itertools
 from typing import List, Tuple
 
 
-
-
 class Parser:
 
     def __init__(self) -> None:
