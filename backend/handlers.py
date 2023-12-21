@@ -1,5 +1,5 @@
 from fastapi.routing import APIRouter
-from fastapi import UploadFile, Depends
+from fastapi import UploadFile, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 import aiofiles
 
@@ -10,7 +10,7 @@ from config import parser, grouper
 
 file_router = APIRouter(prefix='/file', tags=['file'])
 
-@file_router.post("/upload")
+@file_router.post("/upload", status_code=status.HTTP_200_OK)
 async def upload_file(file: UploadFile, session: AsyncSession = Depends(get_db)):
     file_path = f'files/{file.filename}'
     async with aiofiles.open(file_path, 'wb') as saved_file:
@@ -28,7 +28,7 @@ async def upload_file(file: UploadFile, session: AsyncSession = Depends(get_db))
 
 record_router = APIRouter(prefix='/record', tags=['record'])
 
-@record_router.get("/get")
+@record_router.get("/get", status_code=status.HTTP_200_OK)
 async def get_records(session: AsyncSession = Depends(get_db)):
     return await get_records_from_db(session)
 
