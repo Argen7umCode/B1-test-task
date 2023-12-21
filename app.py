@@ -1,10 +1,11 @@
+from pydantic import BaseModel
 import uvicorn
 from parser_1 import Parser
 from db.session import get_db
 from db.models import Base, PaymentClass, Record
 
 from typing import Union, List
-
+from pprint import pprint
 import pandas as pd
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import insert, select
@@ -14,6 +15,17 @@ import aiofiles
 
 app = FastAPI()
 parser = Parser()
+
+
+class RecordSchema(BaseModel):
+    class_name: str
+    unid: int
+    active_balance: float
+    passive_balance: float
+    debit: float
+    credit: float
+
+
 
 class DAL:
     def __init__(self, db_session: AsyncSession) -> None:
@@ -39,9 +51,10 @@ class DAL:
         self.db_session.add(rows)
         return rows
 
+
 async def process_class(payment_class_description: str, 
                         df: pd.DataFrame, 
-                        session: AsyncSession):
+                        session: AsyncSession) -> List[RecordSchema]:
     async with session.begin():
         dal = DAL(session)
 
@@ -52,7 +65,8 @@ async def process_class(payment_class_description: str,
         if payment_class is None:
             payment_class = PaymentClass(description=payment_class_description)
             await dal.add_one(payment_class)
-
+        
+        to_return = []
         to_add = []
         for row in df[['unid', 'active', 'passive', 'debit', 'credit']].to_numpy():
             unid, active, passive, debit, credit = row
@@ -65,9 +79,18 @@ async def process_class(payment_class_description: str,
                         payment_class=payment_class
                     )
             to_add.append(record)
-        
+            to_return.append(
+                RecordSchema(
+                    class_name=payment_class_description,
+                    unid=int(unid),
+                    active_balance=active,
+                    passive_balance=passive,
+                    debit=debit,
+                    credit=credit,
+                )
+            )
         await dal.add_all(to_add)
-    return to_add
+    return to_return
 
 
 @app.post("/file/upload-file")
@@ -84,7 +107,6 @@ async def upload_file(file: UploadFile, session: AsyncSession = Depends(get_db))
         print(payment_class)
         result = await process_class(payment_class, df, session)
         added.extend(result)
-    
     return added
     
 if __name__ == "__main__":
