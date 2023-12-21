@@ -1,5 +1,7 @@
 import os
 
+from utils.process import Grouper, Parser
+
 
 class Config:
     DB_CONFIG = os.getenv(
@@ -14,3 +16,5 @@ class Config:
 
 
 config = Config
+parser = Parser()
+grouper = Grouper()

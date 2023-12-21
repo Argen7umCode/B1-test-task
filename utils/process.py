@@ -46,10 +46,10 @@ class Parser:
         return dfs
     
 
-class Groupper(Parser):
+class Grouper(Parser):
 
     @staticmethod
-    def _get_output_balance(df: pd.DataFrame) -> pd.DataFrame:
+    def get_output_balance(df: pd.DataFrame) -> pd.DataFrame:
         df['output_active'] = df['active'] + df['debit'] - df['credit']
         df.loc[df['active']  == 0, 'output_active'] = 0
 
@@ -70,17 +70,13 @@ class Groupper(Parser):
         result.unid = "ИТОГО ЗА КЛАСС"
         return pd.concat([df, result]).reset_index(drop=True)
     
-    def add_total_result(self, dfs: List[pd.DataFrame]) -> pd.DataFrame:
+    def get_grouped_data(self, dfs: List[pd.DataFrame]) -> pd.DataFrame:
         df = pd.concat([self.add_class_result(
                             self.add_group_result(
-                                self._get_output_balance(df_)
+                                self.get_output_balance(df_)
                                 )
                             ) 
                         for df_ in dfs])
         result = pd.DataFrame(df[df.unid == 'ИТОГО ЗА КЛАСС'].sum(axis=0)).T
         result.unid = "ИТОГО"
         return pd.concat([df, result]).reset_index(drop=True)
-    
-    def get_grouped_data(self, path: str) -> pd.DataFrame:
-        dfs = self.get_classes_from_excel_file(path)
-        return self.add_total_result(dfs)
