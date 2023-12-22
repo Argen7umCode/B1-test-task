@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Get records</title>
+    <script src="/script.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+    <button id="getRecordsButton" onclick="getRecordsFromDB()">Получить записи</button>
+
+    <table id="recordsTable" style="display: none;">
+        <thead>
+            <tr>
+                <th rowspan="2">Record ID</th>
+                <th colspan="2">Incoming balance</th>
+                <th rowspan="2">Debit</th>
+                <th rowspan="2">Credit</th>
+                <th colspan="2">Outcoming  balance</th>
+            </tr>
+            <tr>
+                <th>Active</th>
+                <th>Passive</th>
+                <th>Active</th>
+                <th>Passive</th>
+            </tr>
+
+        </thead>
+        <tbody id="tableBody">
+
+        </tbody>
+    </table>
+</body>
+</html>
