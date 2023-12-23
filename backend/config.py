@@ -1,6 +1,6 @@
 import os
 
-from utils.process import Grouper, Parser
+from utils.process import Parser
 
 
 class Config:

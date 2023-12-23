@@ -26,6 +26,28 @@ services:
     depends_on:
       - db
 
+  backend: 
+    build: ./backend
+    command: uvicorn app:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    volumes:
+      - ./backend:/usr/src/app
+    ports:
+      - 8000:8000
+    environment:
+      - DB_HOST=db
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    command: node app.js
+    ports:
+      - 3000:3000
+    depends_on:
+      - backend
 
 volumes:
   db:

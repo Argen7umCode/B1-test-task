@@ -1,3 +1,7 @@
+let backendUrl = 'http://localhost:8000/api'
+
+
+
 function uploadFile() {
     // функция которая получает файл пользователя и отправляет запрос на сервер
     const fileInput = document.getElementById('fileInput');
@@ -7,7 +11,7 @@ function uploadFile() {
         const formData = new FormData();
         formData.append('file', file);
 
-        fetch('http://127.0.0.1:8000/api/file/upload', {
+        fetch(backendUrl + '/file/upload', {
             method: 'POST',
             body: formData
         })
@@ -19,7 +23,7 @@ function uploadFile() {
         })
         .then(data => {
             console.log('File uploaded successfully:', data);
-            renderTable(data);
+            renderTable(procesRecordsData(data));
         })
         .catch(error => {
             console.error('There was a problem with the upload:', error);
@@ -31,7 +35,7 @@ function uploadFile() {
 
 function getRecordsFromDB() {
     // функция которая отправляет запрос на сервер и ренедерит таблицу с полученными данными
-    fetch('http://127.0.0.1:8000/api/record/get', {
+    fetch(backendUrl + '/record/get', {
         method: 'GET',
     })
     .then(response => {
