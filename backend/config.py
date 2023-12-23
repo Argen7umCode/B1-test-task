@@ -17,4 +17,3 @@ class Config:
 
 config = Config
 parser = Parser()
-grouper = Grouper()

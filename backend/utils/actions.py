@@ -12,6 +12,11 @@ from schemas.record import RecordSchemaResponse, RecordSchemaWithOutputBalancesR
 async def process_class(payment_class_description: str, 
                         df: pd.DataFrame, 
                         session: AsyncSession) -> List[RecordSchemaResponse]:
+    """
+        Отправлят данные в базу по классу:
+            1) Проверяет есть ли этот класс в базе, если его нет, то создает
+            2) Добавляет данные о записях в базу
+    """
     async with session.begin():
         dal = DAL(session)
 
@@ -53,23 +58,29 @@ async def process_class(payment_class_description: str,
 def get_outcoming_acitve_balance(in_active: float, 
                                  debit: float, 
                                  credit: float) -> float:
+    # Расчет исходящего активного сальдо
     return in_active + debit - credit if in_active != 0 else 0
 
 def get_outcoming_passive_balance(in_passive: float, 
                                   debit: float, 
                                   credit: float) -> float:
+    # Расчет исходящего пассивного сальдо
     return  in_passive - debit + credit if in_passive != 0 else 0
 
 def get_outcoming_balance(in_active: float,
                           in_passive: float, 
                           debit: float,
                           credit: float) -> Tuple[float]:
+    # Расчет исходящего сальдо
     return (get_outcoming_acitve_balance(in_active, debit, credit),    
             get_outcoming_passive_balance(in_passive, debit, credit))
 
 
 async def get_records_from_db(session: AsyncSession) \
                                  -> List[RecordSchemaWithOutputBalancesResponse]:
+    """
+        Получает данные по записям из базы, расчитывает исходящее сальдо и возвращает данные 
+    """
     async with session.begin():
         dal = DAL(session)
 

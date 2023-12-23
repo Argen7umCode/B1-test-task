@@ -5,6 +5,7 @@ from db.models import Base
 
 
 class DAL:
+    # Класс который инкапсулирует взаимодействие с базой данных
     def __init__(self, db_session: AsyncSession) -> None:
         self.db_session = db_session
 
