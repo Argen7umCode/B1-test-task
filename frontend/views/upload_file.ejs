@@ -8,10 +8,31 @@
     
 </head>
 <body>
-    <h1>Upload a File</h1>
+    <h1>Загрузить файл</h1>
 
-    <input type="file" id="fileInput" accept=".xlsx"> <!-- Allow only specific file types -->
+    <input type="file" id="fileInput" accept=".xlsx">
     <button id="uploadButton" onclick="uploadFile()">Upload</button>
 
+    <table id="recordsTable" style="display: none;">
+        <thead>
+            <tr>
+                <th rowspan="2">Record ID</th>
+                <th colspan="2">Incoming balance</th>
+                <th rowspan="2">Debit</th>
+                <th rowspan="2">Credit</th>
+                <th colspan="2">Outcoming  balance</th>
+            </tr>
+            <tr>
+                <th>Active</th>
+                <th>Passive</th>
+                <th>Active</th>
+                <th>Passive</th>
+            </tr>
+
+        </thead>
+        <tbody id="tableBody">
+
+        </tbody>
+    </table>
 </body>
 </html>

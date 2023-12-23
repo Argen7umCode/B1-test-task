@@ -1,10 +1,27 @@
 table,
 td {
   border: 1px solid #333;
+  padding: 8px;
 }
+
+tr {
+  text-align: center;
+}
+
 
 thead,
 tfoot {
   background-color: #333;
   color: #fff;
 }
+
+tr.bold {
+  font-weight: bold;
+  background-color: #DDD;
+}
+
+tr.bolder {
+  font-weight: bold;
+  background-color: #BBB;
+}
+
